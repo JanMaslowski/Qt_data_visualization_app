@@ -1,0 +1,53 @@
+\hypertarget{classdeviceconnection}{}\doxysection{deviceconnection Class Reference}
+\label{classdeviceconnection}\index{deviceconnection@{deviceconnection}}
+
+
+The deviceconnection class.  
+
+
+
+
+{\ttfamily \#include $<$deviceconnection.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classdeviceconnection_a32c23195af86668cfc44ccdd6bd5cc02}\label{classdeviceconnection_a32c23195af86668cfc44ccdd6bd5cc02}} 
+\mbox{\hyperlink{classdeviceconnection_a32c23195af86668cfc44ccdd6bd5cc02}{deviceconnection}} ()
+\begin{DoxyCompactList}\small\item\em deviceconnection Konstruktor klasy deviceconnection. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structData}{Data}} \mbox{\hyperlink{classdeviceconnection_afa4ce4b95480f8d5ed079c9109ef0411}{recive\+Data}} (QSerial\+Port \&arduino, \mbox{\hyperlink{structData}{Data}} sensor\+Data)
+\begin{DoxyCompactList}\small\item\em recive\+Data Odbiera dane z urządzenia. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The deviceconnection class. 
+
+Klasa odpowiedzialna za odbieranie danych z urządzenia. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classdeviceconnection_afa4ce4b95480f8d5ed079c9109ef0411}\label{classdeviceconnection_afa4ce4b95480f8d5ed079c9109ef0411}} 
+\index{deviceconnection@{deviceconnection}!reciveData@{reciveData}}
+\index{reciveData@{reciveData}!deviceconnection@{deviceconnection}}
+\doxysubsubsection{\texorpdfstring{reciveData()}{reciveData()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structData}{Data}} deviceconnection\+::recive\+Data (\begin{DoxyParamCaption}\item[{QSerial\+Port \&}]{arduino,  }\item[{\mbox{\hyperlink{structData}{Data}}}]{sensor\+Data }\end{DoxyParamCaption})}
+
+
+
+recive\+Data Odbiera dane z urządzenia. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em arduino} & Obiekt klasy QSerial\+Port reprezentujący połączenie z urządzeniem. \\
+\hline
+{\em sensor\+Data} & Dane z czujnika. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Zaktualizowane dane z czujnika. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+deviceconnection.\+h\item 
+deviceconnection.\+cpp\end{DoxyCompactItemize}
