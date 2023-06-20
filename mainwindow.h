@@ -1,8 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "secondwindow.h"
 #include <QMainWindow>
 #include <QSerialPort>
+#include <QTimer>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -37,6 +40,7 @@ private slots:
      * Slot dla aktualizacji temperatury.
      */
     void updateTemperature();
+    void updateGraphs();
 
     /**
      * @brief on_pushButton_clicked
@@ -70,16 +74,21 @@ private slots:
      */
     double mapValue(double value, double inputMin, double inputMax, double outputMin, double outputMax);
 
+
 private:
     Ui::MainWindow *ui;
     QSerialPort *arduino;
     static const quint16 arduino_nano_every_vendor_id=9025;
     static const quint16 arduino_nano_every_product_id=88;
 
+    secondwindow *graphwindow;
     QByteArray serialData;
     QString serialBuffer;
     QString parsed_data;
     double temperature_value;
+    QTimer *timer;
+    QElapsedTimer elapsedTimer;
+
 };
 
 #endif // MAINWINDOW_H

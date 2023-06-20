@@ -1,6 +1,6 @@
 #include "mainwindow.h"
-#include "secondwindow.h"
 #include "ui_mainwindow.h"
+#include "secondwindow.h"
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <string>
@@ -12,11 +12,14 @@
 #include <unistd.h>
 #include <QPixmap>
 #include <cmath>
+#include <QTimer>
+#include<QTime>
 
 
 
 
 Data sensorData{0,0,0,0,0,0};
+deviceconnection device;
 /*!
  * \brief MainWindow::MainWindow
  * \param parent
@@ -27,18 +30,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     ui->setupUi(this);
-    //int w = ui->label_pic_CO2->width();
-    //int h = ui->label_pic_CO2->height();
-    //qDebug()<<h;
-    //QPixmap CO2pix(":/resource/img/1.png");
 
-    //ui->label_pic_CO2->setPixmap(CO2pix.scaled(150,150,Qt::KeepAspectRatioByExpanding));
-    //displayImage(2);
-
+    graphwindow = new secondwindow(this);
     arduino =new QSerialPort(this);
     serialBuffer = "";
     parsed_data = "";
     temperature_value = 0.0;
+    timer = new QTimer(this);
+    timer->start(1000);
+    elapsedTimer.start();
+
 
 
 bool arduino_is_available = false;
@@ -66,7 +67,7 @@ if (arduino_is_available){
     ui->label_status->setPixmap(StatusPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
     ui->label_status_text->setText("Urządzenie podłączone");
 
-    qDebug() << "Found the arduino port...\n";
+    //qDebug() << "Found the arduino port...\n";
     arduino->setPortName(arduino_uno_port_name);
     arduino->open(QSerialPort::ReadOnly);
     arduino->setBaudRate(QSerialPort::Baud19200);
@@ -74,6 +75,10 @@ if (arduino_is_available){
     arduino->setParity(QSerialPort::NoParity);
     arduino->setStopBits(QSerialPort::OneStop);
     QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(updateTemperature()));
+    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(updateGraphs()));
+
+    //QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(updateGraphs()));
+
 
 
 }
@@ -94,7 +99,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::updateTemperature()
 {
-    deviceconnection device;
+
 
     sensorData = device.reciveData(*arduino, sensorData);
     ui->lcd_temp->display(beautyfi(QString::number(sensorData.temp),1));
@@ -109,11 +114,33 @@ void MainWindow::updateTemperature()
 
 }
 
+void MainWindow::updateGraphs()
+{
+
+    if (sensorData.temp!=0 && sensorData.CO2!=0)
+    {
+    qint64 milliseconds = elapsedTimer.elapsed();
+    float doubleseconds=(float)milliseconds / 1000;
+    int seconds = static_cast<int>(std::round(doubleseconds));
+    graphwindow->transferToVector(sensorData,seconds);
+
+    //qDebug()<<milliseconds;
+    //qDebug()<<doubleseconds;
+    qDebug()<<seconds;
+    }
+    else
+    {
+    elapsedTimer.restart();
+    }
+
+}
+
 void MainWindow::on_pushButton_clicked()
 {
-secondwindow graphwindow;
-graphwindow.setModal(true);
-graphwindow.exec();
+graphwindow->setModal(true);
+graphwindow->exec();
+
+
 }
 
 QString MainWindow::beautyfi(QString text, int parameter)
@@ -160,8 +187,8 @@ void MainWindow::displayImage(QString labelname, QString resource,int sensor_val
     // Determine the image path based on the value
     double doublemappedvalue=mapValue(sensor_value,map[0],map[1],map[2],map[3]);
     int intValue = static_cast<int>(std::round(doublemappedvalue));;
-    qDebug()<<doublemappedvalue;
-    qDebug()<<intValue;
+    //qDebug()<<doublemappedvalue;
+    //qDebug()<<intValue;
     QString stringValue = QString::number(intValue);
     imagePath = resource+stringValue+".png";
     // Find the QLabel based on the provided label name
@@ -176,4 +203,5 @@ void MainWindow::displayImage(QString labelname, QString resource,int sensor_val
 
     }
 }
+
 

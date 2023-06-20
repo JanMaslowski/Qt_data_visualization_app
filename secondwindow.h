@@ -1,11 +1,15 @@
 #ifndef SECONDWINDOW_H
 #define SECONDWINDOW_H
 
-
+#include "deviceconnection.h"
+#include <QElapsedTimer>
 #include <QDialog>
 #include <QMainWindow>
 #include <QSerialPort>
 #include <QVector>
+#include <QTimer>
+#include<QTime>
+
 
 namespace Ui {
 class secondwindow;
@@ -18,7 +22,8 @@ class secondwindow : public QDialog
 public:
     explicit secondwindow(QWidget *parent = nullptr);
     ~secondwindow();
-
+    void transferToVector(Data sensorData,int time);
+    void clearData();
 
 private slots:
 

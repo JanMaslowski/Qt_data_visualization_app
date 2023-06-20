@@ -11,7 +11,7 @@ Data deviceconnection::reciveData(QSerialPort& arduino, Data sensorData)
 
     if (arduino.canReadLine()){
             QByteArray data = arduino.readLine();
-            qDebug() << data;
+            //qDebug() << data;
 
             int startIndex = 1;
             for (int i = 1; i < data.size(); i++) {
@@ -34,11 +34,12 @@ Data deviceconnection::reciveData(QSerialPort& arduino, Data sensorData)
              qDebug() << "Dane się zgadzaja)";
 
             }
-            else
+            /*else
             {
                 qDebug()<< checkSum;
                 qDebug()<< floatList[5];
             }
+            */
 
         sensorData.temp=floatList[0];
         sensorData.hum=floatList[1];
