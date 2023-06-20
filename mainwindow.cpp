@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     timer = new QTimer(this);
     timer->start(1000);
     elapsedTimer.start();
+    QObject::connect(graphwindow, SIGNAL(clicked()), this, SLOT(cleartimer()));
+
 
 
 
@@ -46,6 +48,7 @@ bool arduino_is_available = false;
 QString arduino_uno_port_name;
 
 //  For each available serial port
+
 foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
 {
     //  check if the serialport has both a product identifier and a vendor identifier
@@ -62,6 +65,7 @@ foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts(
 /*
  *  Open and configure the arduino port if available
  */
+
 if (arduino_is_available){
     QPixmap StatusPix(":/resource_diff/img_diff/status.png");
     ui->label_status->setPixmap(StatusPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
@@ -75,7 +79,9 @@ if (arduino_is_available){
     arduino->setParity(QSerialPort::NoParity);
     arduino->setStopBits(QSerialPort::OneStop);
     QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(updateTemperature()));
+    //QObject::connect(this, SIGNAL(arduinoAvailability(bool)), this, SLOT(handleArduinoAvailability(bool)));
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(updateGraphs()));
+
 
     //QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(updateGraphs()));
 
@@ -88,6 +94,9 @@ else{
     QPixmap statusnPix(":/resource_diff/img_diff/statusN.png");
     ui->label_status->setPixmap(statusnPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
     ui->label_status_text->setText("Urządzenie niepodłączone");
+    //checkArduinoAvailability();
+
+
 }
 
 }
@@ -112,6 +121,7 @@ void MainWindow::updateTemperature()
     displayImage("label_pic_lux",":/resource_lux/img4/",sensorData.lux,{0,1000,0,19});
 
 
+
 }
 
 void MainWindow::updateGraphs()
@@ -123,16 +133,17 @@ void MainWindow::updateGraphs()
     float doubleseconds=(float)milliseconds / 1000;
     int seconds = static_cast<int>(std::round(doubleseconds));
     graphwindow->transferToVector(sensorData,seconds);
-
-    //qDebug()<<milliseconds;
-    //qDebug()<<doubleseconds;
-    qDebug()<<seconds;
     }
     else
     {
     elapsedTimer.restart();
     }
 
+}
+
+void MainWindow::cleartimer()
+{
+    elapsedTimer.restart();
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -203,5 +214,45 @@ void MainWindow::displayImage(QString labelname, QString resource,int sensor_val
 
     }
 }
+/*
+void MainWindow::checkArduinoAvailability() {
+    foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
+    {
+        //  check if the serialport has both a product identifier and a vendor identifier
+        if(serialPortInfo.hasProductIdentifier() && serialPortInfo.hasVendorIdentifier()){
+            //  check if the product ID and the vendor ID match those of the arduino uno
+            if((serialPortInfo.productIdentifier() == 88)
+                    && (serialPortInfo.vendorIdentifier() == 9025)){
+
+                 emit arduinoAvailability(true);
+                qDebug()<<"dostepne";
+
+            }
+            else
+            {
+                emit arduinoAvailability(false);
+                qDebug()<<"nie dostepne";
+            }
+        }
+    }
+
+}
 
 
+void MainWindow::handleArduinoAvailability(bool available)
+{
+
+    if (available) {
+        QPixmap StatusPix(":/resource_diff/img_diff/status.png");
+        ui->label_status->setPixmap(StatusPix.scaled(15, 15, Qt::KeepAspectRatioByExpanding));
+        ui->label_status_text->setText("Urządzenie podłączone");
+    }
+    else
+    {
+        QPixmap statusnPix(":/resource_diff/img_diff/statusN.png");
+        ui->label_status->setPixmap(statusnPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
+        ui->label_status_text->setText("Urządzenie niepodłączone");
+    }
+}
+
+*/

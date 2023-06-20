@@ -10,7 +10,6 @@
 #include <QTimer>
 #include<QTime>
 
-
 namespace Ui {
 class secondwindow;
 }
@@ -25,10 +24,14 @@ public:
     void transferToVector(Data sensorData,int time);
     void clearData();
 
-private slots:
+signals:
+    void clicked();
 
+private slots:
+ void handleClicked();
 
 private:
+
     Ui::secondwindow *ui;
     QVector<double> Vx, Vy;
 };

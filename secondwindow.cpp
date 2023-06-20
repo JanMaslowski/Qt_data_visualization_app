@@ -1,6 +1,7 @@
 #include "secondwindow.h"
 #include "ui_secondwindow.h"
 #include "deviceconnection.h"
+#include "mainwindow.h"
 #include <QTimer>
 #include<QTime>
 
@@ -9,10 +10,14 @@ secondwindow::secondwindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::secondwindow)
 {
+
     QPen pen;
     pen.setWidth(2);
     ui->setupUi(this);
     QObject::connect(ui->pushButton, &QPushButton::clicked, this, &secondwindow::clearData);
+    QObject::connect(ui->pushButton, &QPushButton::clicked, this, &secondwindow::handleClicked);
+
+
 
     ui->plot_1->addGraph();
     ui->plot_1->graph()->setScatterStyle(QCPScatterStyle::ssNone);
@@ -109,4 +114,8 @@ void secondwindow::clearData()
         ui->plot_2->replot();
         ui->plot_3->replot();
         ui->plot_4->replot();
+}
+void secondwindow::handleClicked()
+{
+    emit clicked();
 }

@@ -34,6 +34,8 @@ public:
      */
     ~MainWindow();
 
+    //void checkArduinoAvailability();
+
 private slots:
     /**
      * @brief updateTemperature
@@ -41,6 +43,10 @@ private slots:
      */
     void updateTemperature();
     void updateGraphs();
+    void cleartimer();
+   // void handleArduinoAvailability(bool available);
+
+
 
     /**
      * @brief on_pushButton_clicked
@@ -73,6 +79,13 @@ private slots:
      * @return Zmapowana wartość.
      */
     double mapValue(double value, double inputMin, double inputMax, double outputMin, double outputMax);
+
+
+
+signals:
+    //void arduinoAvailability(bool available);
+
+
 
 
 private:
