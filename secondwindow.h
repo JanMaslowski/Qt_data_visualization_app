@@ -34,6 +34,7 @@ private:
 
     Ui::secondwindow *ui;
     QVector<double> Vx, Vy;
+    void changeEvent(QEvent *event) override;
 };
 
 #endif // SECONDWINDOW_H

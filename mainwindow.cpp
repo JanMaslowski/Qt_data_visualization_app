@@ -14,8 +14,7 @@
 #include <cmath>
 #include <QTimer>
 #include<QTime>
-
-
+#include<QTranslator>
 
 
 Data sensorData{0,0,0,0,0,0};
@@ -30,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     ui->setupUi(this);
+    this->setWindowTitle("Aplikacja wyświetlająca dane sensoryczne");
 
     graphwindow = new secondwindow(this);
     arduino =new QSerialPort(this);
@@ -40,6 +40,10 @@ MainWindow::MainWindow(QWidget *parent)
     timer->start(1000);
     elapsedTimer.start();
     QObject::connect(graphwindow, SIGNAL(clicked()), this, SLOT(cleartimer()));
+    connect(ui->EnglishButton, &QPushButton::clicked, this, &MainWindow::EnglishButton);
+    connect(ui->PolishButton, &QPushButton::clicked, this, &MainWindow::PolishButton);
+    connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::secondpushButtonclicked);
+
 
 
 
@@ -69,7 +73,7 @@ foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts(
 if (arduino_is_available){
     QPixmap StatusPix(":/resource_diff/img_diff/status.png");
     ui->label_status->setPixmap(StatusPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
-    ui->label_status_text->setText("Urządzenie podłączone");
+    ui->label_status_text->setText(tr("Urządzenie podłączone"));
 
     //qDebug() << "Found the arduino port...\n";
     arduino->setPortName(arduino_uno_port_name);
@@ -146,7 +150,7 @@ void MainWindow::cleartimer()
     elapsedTimer.restart();
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::secondpushButtonclicked()
 {
 graphwindow->setModal(true);
 graphwindow->exec();
@@ -256,3 +260,45 @@ void MainWindow::handleArduinoAvailability(bool available)
 }
 
 */
+void MainWindow::EnglishButton()
+{
+
+    static QTranslator *translator = new QTranslator();
+    qApp->removeTranslator(translator);
+    if (translator->load("english","/home/jan/wds/"))
+    {
+        qDebug()<<"Jtest";
+        qApp->installTranslator(translator);
+    }
+    else
+    {
+        // Obsługa błędu ładowania tłumaczenia
+        //qDebug() << tr("Błąd ładowania tłumaczenia polskiego!");
+    }
+}
+
+void MainWindow::PolishButton()
+{
+
+    static QTranslator *translator = new QTranslator();
+    qApp->removeTranslator(translator);
+    if (translator->load("polish","/home/jan/wds/"))
+    {
+        qDebug()<<"Jtespllllt";
+        qApp->installTranslator(translator);
+    }
+    else
+    {
+        // Obsługa błędu ładowania tłumaczenia
+        //qDebug() << "Błąd ładowania tłumaczenia angielskiego!";
+    }
+}
+
+
+void MainWindow::changeEvent(QEvent *event) {
+    if (event->type() == QEvent::LanguageChange) {
+        ui->retranslateUi(this);
+        return;
+    }
+    QMainWindow::changeEvent(event);
+}

@@ -1,10 +1,10 @@
 #include "secondwindow.h"
 #include "ui_secondwindow.h"
 #include "deviceconnection.h"
-#include "mainwindow.h"
 #include <QTimer>
 #include<QTime>
 
+ QCPTextElement *tytul;
 
 secondwindow::secondwindow(QWidget *parent) :
     QDialog(parent),
@@ -14,6 +14,7 @@ secondwindow::secondwindow(QWidget *parent) :
     QPen pen;
     pen.setWidth(2);
     ui->setupUi(this);
+    this->setWindowTitle("Wykresy");
     QObject::connect(ui->pushButton, &QPushButton::clicked, this, &secondwindow::clearData);
     QObject::connect(ui->pushButton, &QPushButton::clicked, this, &secondwindow::handleClicked);
 
@@ -28,7 +29,7 @@ secondwindow::secondwindow(QWidget *parent) :
     ui->plot_1->graph()->setPen(pen);
     ui->plot_1->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom );
     ui->plot_1->plotLayout()->insertRow(0);
-    ui->plot_1->plotLayout()->addElement(0,0, new QCPTextElement(ui->plot_1,"TEMPERATURA"));
+    ui->plot_1->plotLayout()->addElement(0,0,tytul=new QCPTextElement(ui->plot_1,"TEMPERATURA"));
     ui->plot_1->setBackground(QColor(200, 200, 200, 0));
 
     ui->plot_2->addGraph();
@@ -118,4 +119,14 @@ void secondwindow::clearData()
 void secondwindow::handleClicked()
 {
     emit clicked();
+}
+
+void secondwindow::changeEvent(QEvent *event) {
+    if (event->type() == QEvent::LanguageChange) {
+        ui->retranslateUi(this);
+        tytul->setText(QApplication::translate("secondwindow","TEMPERATURA"));
+        return;
+
+    }
+    QDialog::changeEvent(event);
 }

@@ -95,4 +95,10 @@
         <file>img4/18.png</file>
         <file>img4/19.png</file>
     </qresource>
+    <qresource prefix="/translations">
+        <file>english.qm</file>
+        <file>polish.qm</file>
+        <file>english.ts</file>
+        <file>polish.ts</file>
+    </qresource>
 </RCC>

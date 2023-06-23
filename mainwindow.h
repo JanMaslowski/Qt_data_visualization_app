@@ -44,6 +44,8 @@ private slots:
     void updateTemperature();
     void updateGraphs();
     void cleartimer();
+    void EnglishButton();
+    void PolishButton();
    // void handleArduinoAvailability(bool available);
 
 
@@ -52,7 +54,7 @@ private slots:
      * @brief on_pushButton_clicked
      * Slot dla obsługi kliknięcia przycisku.
      */
-    void on_pushButton_clicked();
+    void secondpushButtonclicked();
 
 
     QString beautyfi(QString text, int parameter );
@@ -101,6 +103,8 @@ private:
     double temperature_value;
     QTimer *timer;
     QElapsedTimer elapsedTimer;
+
+    virtual void changeEvent ( QEvent *event) override ;
 
 };
 

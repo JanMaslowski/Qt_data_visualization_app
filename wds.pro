@@ -25,6 +25,10 @@ FORMS += \
     mainwindow.ui \
     secondwindow.ui
 
+TRANSLATIONS +=\
+    polish.ts \
+    english.ts
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -32,4 +36,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resource.qrc
+
+DISTFILES +=
 
