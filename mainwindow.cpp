@@ -1,20 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "secondwindow.h"
-#include <QSerialPort>
-#include <QSerialPortInfo>
-#include <string>
-#include <QDebug>
-#include <QMessageBox>
-#include <QChar>
-#include <vector>
-#include "deviceconnection.h"
-#include <unistd.h>
-#include <QPixmap>
-#include <cmath>
-#include <QTimer>
-#include<QTime>
-#include<QTranslator>
 
 
 Data sensorData{0,0,0,0,0,0};
@@ -44,64 +30,50 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->PolishButton, &QPushButton::clicked, this, &MainWindow::PolishButton);
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::secondpushButtonclicked);
 
+    bool arduino_is_available = false;
+    QString arduino_uno_port_name;
 
+    //  For each available serial port
 
-
-
-bool arduino_is_available = false;
-QString arduino_uno_port_name;
-
-//  For each available serial port
-
-foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
-{
-    //  check if the serialport has both a product identifier and a vendor identifier
-    if(serialPortInfo.hasProductIdentifier() && serialPortInfo.hasVendorIdentifier()){
-        //  check if the product ID and the vendor ID match those of the arduino uno
-        if((serialPortInfo.productIdentifier() == arduino_nano_every_product_id)
-                && (serialPortInfo.vendorIdentifier() == arduino_nano_every_vendor_id)){
-            arduino_is_available = true; //    arduino uno is available on this port
-            arduino_uno_port_name = serialPortInfo.portName();
+    foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
+    {
+        //  check if the serialport has both a product identifier and a vendor identifier
+        if(serialPortInfo.hasProductIdentifier() && serialPortInfo.hasVendorIdentifier()){
+            //  check if the product ID and the vendor ID match those of the arduino uno
+            if((serialPortInfo.productIdentifier() == arduino_nano_every_product_id)
+                    && (serialPortInfo.vendorIdentifier() == arduino_nano_every_vendor_id)){
+                arduino_is_available = true; //    arduino uno is available on this port
+                arduino_uno_port_name = serialPortInfo.portName();
+            }
         }
     }
-}
 
-/*
- *  Open and configure the arduino port if available
- */
+    if (arduino_is_available)
+    {
+        QPixmap StatusPix(":/resource_diff/img_diff/status.png");
+        ui->label_status->setPixmap(StatusPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
+        ui->label_status_text->setText(tr("Urządzenie podłączone"));
 
-if (arduino_is_available){
-    QPixmap StatusPix(":/resource_diff/img_diff/status.png");
-    ui->label_status->setPixmap(StatusPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
-    ui->label_status_text->setText(tr("Urządzenie podłączone"));
+        //qDebug() << "Found the arduino port...\n";
+        arduino->setPortName(arduino_uno_port_name);
+        arduino->open(QSerialPort::ReadOnly);
+        arduino->setBaudRate(QSerialPort::Baud19200);
+        arduino->setFlowControl(QSerialPort::NoFlowControl);
+        arduino->setParity(QSerialPort::NoParity);
+        arduino->setStopBits(QSerialPort::OneStop);
+        QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(adaptDataAndDisplay()));
+        //QObject::connect(this, SIGNAL(arduinoAvailability(bool)), this, SLOT(handleArduinoAvailability(bool)));
+        QObject::connect(timer, SIGNAL(timeout()), this, SLOT(updateGraphs()));
 
-    //qDebug() << "Found the arduino port...\n";
-    arduino->setPortName(arduino_uno_port_name);
-    arduino->open(QSerialPort::ReadOnly);
-    arduino->setBaudRate(QSerialPort::Baud19200);
-    arduino->setFlowControl(QSerialPort::NoFlowControl);
-    arduino->setParity(QSerialPort::NoParity);
-    arduino->setStopBits(QSerialPort::OneStop);
-    QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(updateTemperature()));
-    //QObject::connect(this, SIGNAL(arduinoAvailability(bool)), this, SLOT(handleArduinoAvailability(bool)));
-    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(updateGraphs()));
+    }
+    else{
+        qDebug() << "Couldn't find the correct port for the arduino.\n";
+        QMessageBox::information(this, "Serial Port Error", "Couldn't open serial port to arduino.");
+        QPixmap statusnPix(":/resource_diff/img_diff/statusN.png");
+        ui->label_status->setPixmap(statusnPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
+        ui->label_status_text->setText("Urządzenie niepodłączone");
 
-
-    //QObject::connect(arduino, SIGNAL(readyRead()), this, SLOT(updateGraphs()));
-
-
-
-}
-else{
-    qDebug() << "Couldn't find the correct port for the arduino.\n";
-    QMessageBox::information(this, "Serial Port Error", "Couldn't open serial port to arduino.");
-    QPixmap statusnPix(":/resource_diff/img_diff/statusN.png");
-    ui->label_status->setPixmap(statusnPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
-    ui->label_status_text->setText("Urządzenie niepodłączone");
-    //checkArduinoAvailability();
-
-
-}
+    }
 
 }
 
@@ -110,7 +82,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateTemperature()
+void MainWindow::adaptDataAndDisplay()
 {
 
 
@@ -133,14 +105,14 @@ void MainWindow::updateGraphs()
 
     if (sensorData.temp!=0 && sensorData.CO2!=0)
     {
-    qint64 milliseconds = elapsedTimer.elapsed();
-    float doubleseconds=(float)milliseconds / 1000;
-    int seconds = static_cast<int>(std::round(doubleseconds));
-    graphwindow->transferToVector(sensorData,seconds);
+        qint64 milliseconds = elapsedTimer.elapsed();
+        float doubleseconds=(float)milliseconds / 1000;
+        int seconds = static_cast<int>(std::round(doubleseconds));
+        graphwindow->addDataToPlots(sensorData,seconds);
     }
     else
     {
-    elapsedTimer.restart();
+        elapsedTimer.restart();
     }
 
 }
@@ -152,10 +124,8 @@ void MainWindow::cleartimer()
 
 void MainWindow::secondpushButtonclicked()
 {
-graphwindow->setModal(true);
-graphwindow->exec();
-
-
+    graphwindow->setModal(true);
+    graphwindow->exec();
 }
 
 QString MainWindow::beautyfi(QString text, int parameter)
@@ -169,7 +139,7 @@ QString MainWindow::beautyfi(QString text, int parameter)
             {
                 text+=".";
             }
-            text+="0";
+        text+="0";
         }
     }
     if (text.length()<5 && parameter ==2)
@@ -181,7 +151,7 @@ QString MainWindow::beautyfi(QString text, int parameter)
             {
                 text+=" ";
             }
-            text=" "+text;
+        text=" "+text;
         }
     }
 
@@ -189,10 +159,10 @@ QString MainWindow::beautyfi(QString text, int parameter)
     return mark;
 }
 
-double MainWindow::mapValue(double value, double inputMin, double inputMax, double outputMin, double outputMax) {
+double MainWindow::mapValue(double value, double inputMin, double inputMax, double outputMin, double outputMax)
+{
     double mappedValue = outputMin + (value - inputMin) * (outputMax - outputMin) / (inputMax - inputMin);
     mappedValue = std::max(outputMin, std::min(outputMax, mappedValue));
-
     return mappedValue;
 }
 
@@ -202,64 +172,20 @@ void MainWindow::displayImage(QString labelname, QString resource,int sensor_val
     // Determine the image path based on the value
     double doublemappedvalue=mapValue(sensor_value,map[0],map[1],map[2],map[3]);
     int intValue = static_cast<int>(std::round(doublemappedvalue));;
-    //qDebug()<<doublemappedvalue;
-    //qDebug()<<intValue;
     QString stringValue = QString::number(intValue);
     imagePath = resource+stringValue+".png";
     // Find the QLabel based on the provided label name
     QLabel* label = findChild<QLabel*>(labelname);
-    if (label) {
+    if (label)
+    {
         // Load the image and scale it to the QLabel size
         QPixmap pixmap(imagePath);
-        //label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         QPixmap scaledPixmap = pixmap.scaled(label->size(), Qt::KeepAspectRatio);
         // Set the scaled pixmap in the QLabel
         label->setPixmap(scaledPixmap);
-
-    }
-}
-/*
-void MainWindow::checkArduinoAvailability() {
-    foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts())
-    {
-        //  check if the serialport has both a product identifier and a vendor identifier
-        if(serialPortInfo.hasProductIdentifier() && serialPortInfo.hasVendorIdentifier()){
-            //  check if the product ID and the vendor ID match those of the arduino uno
-            if((serialPortInfo.productIdentifier() == 88)
-                    && (serialPortInfo.vendorIdentifier() == 9025)){
-
-                 emit arduinoAvailability(true);
-                qDebug()<<"dostepne";
-
-            }
-            else
-            {
-                emit arduinoAvailability(false);
-                qDebug()<<"nie dostepne";
-            }
-        }
-    }
-
-}
-
-
-void MainWindow::handleArduinoAvailability(bool available)
-{
-
-    if (available) {
-        QPixmap StatusPix(":/resource_diff/img_diff/status.png");
-        ui->label_status->setPixmap(StatusPix.scaled(15, 15, Qt::KeepAspectRatioByExpanding));
-        ui->label_status_text->setText("Urządzenie podłączone");
-    }
-    else
-    {
-        QPixmap statusnPix(":/resource_diff/img_diff/statusN.png");
-        ui->label_status->setPixmap(statusnPix.scaled(15,15,Qt::KeepAspectRatioByExpanding));
-        ui->label_status_text->setText("Urządzenie niepodłączone");
     }
 }
 
-*/
 void MainWindow::EnglishButton()
 {
 
@@ -267,13 +193,12 @@ void MainWindow::EnglishButton()
     qApp->removeTranslator(translator);
     if (translator->load("english","/home/jan/wds/"))
     {
-        qDebug()<<"Jtest";
         qApp->installTranslator(translator);
     }
     else
     {
         // Obsługa błędu ładowania tłumaczenia
-        //qDebug() << tr("Błąd ładowania tłumaczenia polskiego!");
+        qDebug() << tr("Błąd ładowania tłumaczenia angielskiego!");
     }
 }
 
@@ -284,13 +209,12 @@ void MainWindow::PolishButton()
     qApp->removeTranslator(translator);
     if (translator->load("polish","/home/jan/wds/"))
     {
-        qDebug()<<"Jtespllllt";
         qApp->installTranslator(translator);
     }
     else
     {
-        // Obsługa błędu ładowania tłumaczenia
-        //qDebug() << "Błąd ładowania tłumaczenia angielskiego!";
+        //Obsługa błędu ładowania tłumaczenia
+        qDebug() << tr("Błąd ładowania tłumaczenia polskiego!");
     }
 }
 

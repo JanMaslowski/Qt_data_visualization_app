@@ -2,39 +2,43 @@
 #define SECONDWINDOW_H
 
 #include "deviceconnection.h"
+#include <QTimer>
+#include<QTime>
 #include <QElapsedTimer>
 #include <QDialog>
 #include <QMainWindow>
 #include <QSerialPort>
 #include <QVector>
-#include <QTimer>
-#include<QTime>
+#include<QTranslator>
 
-namespace Ui {
-class secondwindow;
+namespace Ui
+{
+    class secondwindow;
 }
 
 class secondwindow : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit secondwindow(QWidget *parent = nullptr);
-    ~secondwindow();
-    void transferToVector(Data sensorData,int time);
-    void clearData();
+    public:
 
-signals:
-    void clicked();
+        explicit secondwindow(QWidget *parent = nullptr);
+        ~secondwindow();
+        void addDataToPlots(Data sensorData,int time);
+        void clearData(); //uzywane
 
-private slots:
- void handleClicked();
+    signals:
 
-private:
+        void clicked(); //uzywane
 
-    Ui::secondwindow *ui;
-    QVector<double> Vx, Vy;
-    void changeEvent(QEvent *event) override;
+    private slots:
+
+        void handleClicked(); //uzywane
+
+    private:
+
+        Ui::secondwindow *ui;
+        void changeEvent(QEvent *event) override;
 };
 
 #endif // SECONDWINDOW_H

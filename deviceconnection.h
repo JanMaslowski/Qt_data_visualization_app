@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QChar>
 #include <vector>
+#include<QTranslator>
 
 /*!
  * \brief Struktura Data
@@ -31,21 +32,21 @@ struct Data
  */
 class deviceconnection
 {
-public:
-    /**
-     * @brief deviceconnection
-     * Konstruktor klasy deviceconnection.
-     */
-    deviceconnection();
+    public:
+        /**
+         * @brief deviceconnection
+         * Konstruktor klasy deviceconnection.
+         */
+        deviceconnection();
 
-    /**
-     * @brief reciveData
-     * Odbiera dane z urządzenia.
-     * @param arduino Obiekt klasy QSerialPort reprezentujący połączenie z urządzeniem.
-     * @param sensorData Dane z czujnika.
-     * @return Zaktualizowane dane z czujnika.
-     */
-    Data reciveData(QSerialPort& arduino, Data sensorData);
+        /**
+         * @brief reciveData
+         * Odbiera dane z urządzenia.
+         * @param arduino Obiekt klasy QSerialPort reprezentujący połączenie z urządzeniem.
+         * @param sensorData Dane z czujnika.
+         * @return Zaktualizowane dane z czujnika.
+         */
+        Data reciveData(QSerialPort& arduino, Data sensorData);
 };
 
 #endif // DEVICECONNECTION_H
